@@ -1,32 +1,38 @@
 class Solution:
-    def getSubarrayBeauty(self, nums: List[int], k: int, x: int) -> List[int]:
-        def solve(negative):
-            if(negative < x):
-                return 0
-            temp = x
-            for i in range(50):
-                if(temp <= count[i]):
-                    return i-50
-                temp -= count[i]
+    def find_x_smallest(self, count_map, x):
+        count = 0
+        for num in range(-50, 0, 1):
+            if count_map.get(num, 0) != 0:
+                count += count_map[num]
+                if count >= x:
+                    return num
                 
+        return 0
+
+    def getSubarrayBeauty(self, nums: List[int], k: int, x: int) -> List[int]:
+        start = 0
         neg = 0
-        count = [0] * 50
-        for i in range(k):
-            if(nums[i] < 0):
-                count[nums[i]] += 1
+        count_map = {}
+    
+        ans = []
+            
+        for end in range(len(nums)):
+            # Remove contribution of start element if its negative.
+            if start > len(nums)-k+1:
+                break
+            if nums[end] < 0:
                 neg += 1
-        ans = [solve(neg)]
-        for i in range(k, len(nums)):
-            if(nums[i] < 0):
-                count[nums[i]] += 1
-                neg += 1
-            if(nums[i-k] < 0):
-                count[nums[i-k]] -= 1
-                neg -= 1
-            ans.append(solve(neg))
+                count_map[nums[end]] = count_map.get(nums[end], 0) + 1
+            
+            window_size = end - start + 1
+            if window_size == k:
+                temp = 0
+                if neg >= x: 
+                    temp = self.find_x_smallest(count_map, x)
+                if nums[start] < 0:
+                    neg -= 1
+                    count_map[nums[start]] -= 1
+                start += 1
+                ans.append(temp)
+            
         return ans
-            
-        
-            
-            
-        
